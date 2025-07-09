@@ -1,0 +1,1 @@
+# Secuencia-de-Collatz-ODSC
