@@ -14,8 +14,11 @@ loop,   Load            i
         Jump            endwhile     / Fin del programa
 
 / Leer número y procesar su secuencia de Collatz
-bodywhile,Input
+bodywhile, Input
         Store           num
+        Store           max_value     / Reiniciar max_value con el número leído
+        Output                          / Imprimir el primer número (ya que aún no ha entrado al while2)
+
 
 
 / Generar e imprimir la secuencia de Collatz
@@ -61,11 +64,12 @@ else,   Load            num
 		
 
 / Fin de la secuencia actual
-endwhile2,	Clear
-        Load            i
-        Add             one
-        Store           i
-        Jump            loop
+endwhile2,   Load        max_value     / Imprimir el mayor valor de esta secuencia
+             Output
+             Load        i
+             Add         one
+             Store       i
+             Jump        loop
 
 / Fin del programa
 endwhile,          Load            max_value
