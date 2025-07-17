@@ -1,1 +1,140 @@
+        Input
+        Store           cases         / Leer número de casos
 
+/ Bucle principal: procesa "cases" veces
+while,  Clear                       
+        Store           i            / Reinicia contador i
+		Clear
+        Store           max_value    / Reinicia el valor máximo global
+
+loop,   Load            i
+        Subt            cases
+        Skipcond        800          / Si i >= cases, termina
+        Jump            bodywhile
+        Jump            endwhile     / Fin del programa
+
+/ Leer número y procesar su secuencia de Collatz
+bodywhile,Input
+        Store           num
+
+
+/ Generar e imprimir la secuencia de Collatz
+while2, Load            num
+        Subt            one
+        Skipcond        400           / Si num == 1, termina
+        Jump            bodywhile2
+        Jump            endwhile2
+
+/ Verificar si num es par o impar
+bodywhile2,	Load            num
+        Store           mod_a
+        JnS             mod
+        Store           remainder
+        Skipcond        400           / Si es par (residuo == 0)
+        Jump            else
+
+        / num es par → num = num / 2
+        Load            num
+        Store           div_a
+        JnS             div
+        Store           num
+        Output                         / Imprimir nuevo número
+        Jump            while2
+
+/ Si num es impar: num = 3*num + 1
+else,   Load            num
+        Store           mult_a
+        JnS             mult    
+        Add             one                
+        Store           num
+        Output                        / Imprimir nuevo número
+		
+		/ Comparar con max_value
+        Load            num
+        Subt            max_value
+        Skipcond        000		// num<max_value
+		Jump            ell	
+		Jump            while2 
+		ell, 			Load            num
+        				Store           max_value
+						Jump            while2
+		
+
+/ Fin de la secuencia actual
+endwhile2,	Clear
+        Load            i
+        Add             one
+        Store           i
+        Jump            loop
+
+/ Fin del programa
+endwhile,          Load            max_value
+        		   Output
+					Halt
+
+/ -------- Variables --------
+cases,      DEC     0
+num,        DEC     0
+remainder,  DEC     0
+one,        DEC     1
+i,          DEC     0
+max_value,  DEC     0
+
+/ -------- Subrutina: Módulo (num % 2) --------
+mod,        DEC     0
+mod_while,  Load    mod_a
+            Subt    mod_two
+            Skipcond 000
+            Jump    mod_bodywhile
+            Jump    mod_endwhile
+mod_bodywhile,	Store   mod_a
+            Jump    mod_while
+mod_endwhile,	Load    mod_a
+            JumpI   mod
+mod_a,      DEC     0
+mod_two,    DEC     2
+
+/ -------- Subrutina: División (num / 2) --------
+div,        DEC     0
+            Clear
+            Store   div_i
+div_while,  Load    div_a
+            Subt    div_two
+            Skipcond 000
+            Jump    div_bodywhile
+            Jump    div_endwhile
+div_bodywhile,	Store   div_a
+            Load    div_i
+            Add     div_one
+            Store   div_i
+            Jump    div_while
+div_endwhile,	Load    div_i
+            JumpI   div
+div_a,      DEC     0
+div_i,      DEC     0
+div_one,    DEC     1
+div_two,    DEC     2
+
+/ -------- Subrutina: Multiplicación (num * 3) --------
+mult,       DEC     0
+            Clear
+            Store   mult_i
+            Store   mult_m
+mult_while, Load    mult_i
+            Subt    mult_a
+            Skipcond 000
+            Jump    mult_endwhile
+            Load    mult_m
+            Add     mult_three
+            Store   mult_m
+            Load    mult_i
+            Add     mult_one
+            Store   mult_i
+            Jump    mult_while
+mult_endwhile,	Load    mult_m
+            JumpI   mult
+mult_a,     DEC     0
+mult_i,     DEC     0
+mult_m,     DEC     0
+mult_one,   DEC     1
+mult_three, DEC     3
