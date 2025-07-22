@@ -1,120 +1,120 @@
-        Input
-        Store           cases         
-		Load  			cases       
-		Subt  			one         
-		Store 			cases       
+        Input                   / Leer número de casos
+        Store   cases          / Guardar en variable 'cases'
+        Load    cases
+        Subt    one            / Restar 1 porque el contador i inicia en 0
+        Store   cases          / Actualizar 'cases' para contar desde 0
 
+/ -------- Bucle principal para procesar cada caso --------
+while,  Clear                 
+        Store   i             / Inicializar contador i = 0
+        Clear
+        Store   max_value     / Inicializar el valor máximo global a 0
 
-/ Bucle principal: procesa "cases" veces
-while,  Clear                       
-        Store           i            / Reinicia contador i
-		Clear
-        Store           max_value    / Reinicia el valor máximo global
+loop,   Load    i
+        Subt    cases
+        Skipcond 800          / Si i >= cases, terminar
+        Jump    bodywhile     / Si no, procesar el caso
+        Halt                  / Fin del programa
 
-loop,   Load            i
-        Subt            cases
-        Skipcond        800          / Si i >= cases, termina
-        Jump            bodywhile
-        Jump            endwhile     / Fin del programa
-
-/ Leer número y procesar su secuencia de Collatz
+/ -------- Leer número y preparar la secuencia de Collatz --------
 bodywhile, Input
-        Store           num
-        Store           max_value     / Reiniciar max_value con el número leído
+        Store   num           / Guardar el número de entrada
+        Store   max_value     / Reiniciar el máximo local con el número leído
 
+/ -------- Generar la secuencia de Collatz --------
+while2, Load    num
+        Subt    one
+        Skipcond 400          / Si num == 1, termina la secuencia
+        Jump    bodywhile2
+        Jump    endwhile2     / Salir del bucle si num == 1
 
-/ Generar e imprimir la secuencia de Collatz
-while2, Load            num
-        Subt            one
-        Skipcond        400           / Si num == 1, termina
-        Jump            bodywhile2
-        Jump            endwhile2
+/ -------- Verificar si el número es par o impar --------
+bodywhile2, Load    num
+        Store   mod_a
+        JnS     mod           / Llamar a subrutina módulo (num % 2)
+        Store   remainder     / Guardar el resultado del módulo
+        Skipcond 400          / Si el módulo fue 0, el número es par
+        Jump    else          / Si no fue 0, el número es impar
 
-/ Verificar si num es par o impar
-bodywhile2,	Load            num
-        Store           mod_a
-        JnS             mod
-        Store           remainder
-        Skipcond        400           / Si es par (residuo == 0)
-        Jump            else
+/ -------- Si el número es par --------
+        Load    num
+        Store   div_a
+        JnS     div           / Llamar a subrutina para num / 2
+        Store   num           / Actualizar num con el nuevo valor
 
-        / num es par → num = num / 2
-        Load            num
-        Store           div_a
-        JnS             div
-        Store           num
+        Jump    while2        / Repetir con el nuevo número
 
-        Jump            while2
+/ -------- Si el número es impar --------
+else,   Load    num
+        Store   mult_a
+        JnS     mult          / Llamar a subrutina para 3 * num
+        Add     one           / 3 * num + 1
+        Store   num
 
-/ Si num es impar: num = 3*num + 1
-else,   Load            num
-        Store           mult_a
-        JnS             mult    
-        Add             one                
-        Store           num
-		
-		/ Comparar con max_value
-        Load            num
-        Subt            max_value
-        Skipcond        000		// num<max_value
-		Jump            ell	
-		Jump            while2 
-		ell, 			Load            num
-        				Store           max_value
-						Jump            while2
-		
+        / Comparar con max_value
+        Load    num
+        Subt    max_value
+        Skipcond 000          / Si num < max_value
+        Jump    ell           / Entonces actualizar max_value
+        Jump    while2        / Si no, continuar con while2
 
-/ Fin de la secuencia actual
-endwhile2,   Load        max_value     / Imprimir el mayor valor de esta secuencia
-             Output
-             Load        i
-             Add         one
-             Store       i
-             Jump        loop
+ell,    Load    num
+        Store   max_value     / Actualizar el máximo local
+        Jump    while2        / Repetir con el nuevo num
 
-/ Fin del programa
-endwhile,          Load            max_value
-        		   /Output
-					Halt
+/ -------- Fin de secuencia Collatz para un número --------
+endwhile2,   Load    max_value
+             Output            / Imprimir el máximo valor encontrado en la secuencia
+             Load    i
+             Add     one
+             Store   i         / i++
+             Jump    loop      / Siguiente caso
 
 / -------- Variables --------
-cases,      DEC     0
-num,        DEC     0
-remainder,  DEC     0
-one,        DEC     1
-i,          DEC     0
-max_value,  DEC     0
+cases,      DEC     0          / Número de casos
+num,        DEC     0          / Número actual en la secuencia
+remainder,  DEC     0          / Resultado de num % 2
+one,        DEC     1          / Constante 1
+i,          DEC     0          / Contador de casos
+max_value,  DEC     0          / Máximo valor en la secuencia
 
 / -------- Subrutina: Módulo (num % 2) --------
 mod,        DEC     0
 mod_while,  Load    mod_a
             Subt    mod_two
-            Skipcond 000
+            Skipcond 000       / Si resultado < 0, terminar
             Jump    mod_bodywhile
             Jump    mod_endwhile
-mod_bodywhile,	Store   mod_a
+
+mod_bodywhile, Store mod_a     / Actualizar valor
             Jump    mod_while
-mod_endwhile,	Load    mod_a
+
+mod_endwhile, Load mod_a       / Devolver el residuo
             JumpI   mod
+
 mod_a,      DEC     0
 mod_two,    DEC     2
 
 / -------- Subrutina: División (num / 2) --------
 div,        DEC     0
             Clear
-            Store   div_i
+            Store   div_i      / Inicializar contador i = 0
+
 div_while,  Load    div_a
             Subt    div_two
-            Skipcond 000
+            Skipcond 000       / Si < 0, terminar
             Jump    div_bodywhile
             Jump    div_endwhile
-div_bodywhile,	Store   div_a
+
+div_bodywhile, Store div_a
             Load    div_i
             Add     div_one
             Store   div_i
             Jump    div_while
-div_endwhile,	Load    div_i
+
+div_endwhile, Load div_i
             JumpI   div
+
 div_a,      DEC     0
 div_i,      DEC     0
 div_one,    DEC     1
@@ -123,21 +123,27 @@ div_two,    DEC     2
 / -------- Subrutina: Multiplicación (num * 3) --------
 mult,       DEC     0
             Clear
-            Store   mult_i
-            Store   mult_m
+            Store   mult_i     / mult_i = 0
+            Store   mult_m     / mult_m = 0
+
 mult_while, Load    mult_i
             Subt    mult_a
-            Skipcond 000
+            Skipcond 000       / Si mult_i >= mult_a, terminar
             Jump    mult_endwhile
+
             Load    mult_m
             Add     mult_three
             Store   mult_m
+
             Load    mult_i
             Add     mult_one
             Store   mult_i
+
             Jump    mult_while
-mult_endwhile,	Load    mult_m
+
+mult_endwhile, Load mult_m
             JumpI   mult
+
 mult_a,     DEC     0
 mult_i,     DEC     0
 mult_m,     DEC     0
