@@ -1,5 +1,9 @@
         Input
-        Store           cases         / Leer número de casos
+        Store           cases         
+		Load  			cases       
+		Subt  			one         
+		Store 			cases       
+
 
 / Bucle principal: procesa "cases" veces
 while,  Clear                       
@@ -70,7 +74,7 @@ endwhile2,   Load        max_value     / Imprimir el mayor valor de esta secuenc
 
 / Fin del programa
 endwhile,          Load            max_value
-        		   Output
+        		   /Output
 					Halt
 
 / -------- Variables --------
