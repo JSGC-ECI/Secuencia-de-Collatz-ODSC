@@ -17,8 +17,6 @@ loop,   Load            i
 bodywhile, Input
         Store           num
         Store           max_value     / Reiniciar max_value con el número leído
-        Output                          / Imprimir el primer número (ya que aún no ha entrado al while2)
-
 
 
 / Generar e imprimir la secuencia de Collatz
@@ -41,7 +39,7 @@ bodywhile2,	Load            num
         Store           div_a
         JnS             div
         Store           num
-        Output                         / Imprimir nuevo número
+
         Jump            while2
 
 / Si num es impar: num = 3*num + 1
@@ -50,7 +48,6 @@ else,   Load            num
         JnS             mult    
         Add             one                
         Store           num
-        Output                        / Imprimir nuevo número
 		
 		/ Comparar con max_value
         Load            num
