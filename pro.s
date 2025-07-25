@@ -1,86 +1,76 @@
-.global _start
+.data
+scan_format:    .asciz "%d"
+print_format:   .asciz " %d\n"
+cases:          .word 0
+num:            .word 0
+max_value:      .word 0
+i:              .word 0
+return_addr:    .word 0
 
+.text
+.global main
+.func main
+main:
+    LDR     R0, =return_addr
+    STR     LR, [R0]
 
+    LDR     R0, =scan_format
+    LDR     R1, =cases
+    BL      scanf
 
-.section .data
-    prompt_cases: .asciz "Numero de casos: "
-    prompt_input: .asciz "Ingrese numero: "
-    output_fmt:   .asciz "Maximo valor: %d\n"
+    MOV     R4, #0
 
-    num_cases: .word 2          @ Número de casos de prueba
-    inputs:    .word 4, 7       @ Ejemplo de entrada: 4 y 7
+loop:
+    LDR     R1, =i
+    STR     R4, [R1]
 
-.section .bss
-    num: .skip 4
-    max: .skip 4
+    LDR     R1, =cases
+    LDR     R1, [R1]
+    CMP     R4, R1
+    BGE     end_program
 
+    LDR     R0, =scan_format
+    LDR     R1, =num
+    BL      scanf
 
-.section .text
-_start:
-    ldr r4, =inputs        @ r4 apunta al arreglo de entradas
-    ldr r5, =num_cases     @ r5 tiene la dirección del número de casos
-    ldr r6, [r5]           @ r6 = cantidad de casos
-    mov r7, #0             @ r7 = contador de casos
-
-
-
-
-
-
-
-
-
-loop_cases:
-    cmp r7, r6             @ si r7 == casos, salir
-    beq end_program
-
-
-
-
-
-
-
-
-
-
-
-
-    ldr r0, [r4, r7, LSL #2] @ cargar input[r7] en r0
-    mov r1, r0             @ r1 = num actual
-    mov r2, r0             @ r2 = max actual
+    LDR     R1, =num
+    LDR     R2, [R1]
+    MOV     R3, R2
 
 collatz_loop:
-    cmp r1, #1
-    beq print_max          @ si num == 1, terminamos esta secuencia
+    CMP     R2, #1
+    BLE     done_sequence
 
-    and r3, r1, #1         @ r3 = r1 % 2
-    cmp r3, #0
-    beq is_even            @ si es par
-    b   is_odd             @ si es impar
+    AND     R5, R2, #1
+    CMP     R5, #0
+    BEQ     is_even
+
+    ADD     R6, R2, R2
+    ADD     R6, R6, R2
+    ADD     R2, R6, #1
+    B       check_max
 
 is_even:
-    mov r1, r1, LSR #1     @ dividir entre 2 usando shift
-    b   update_max
+    MOV     R2, R2, LSR #1
 
-is_odd:
-    mov r3, r1, LSL #1     @ r3 = 2*num
-    add r1, r3, r1         @ r1 = 3*num
-    add r1, r1, #1         @ r1 = 3*num + 1
+check_max:
+    CMP     R2, R3
+    BLE     collatz_loop
+    MOV     R3, R2
+    B       collatz_loop
 
-update_max:
-    cmp r1, r2
-    ble collatz_loop       @ si r1 <= max, no actualiza
-    mov r2, r1             @ si r1 > max, actualiza max
-    b   collatz_loop
+done_sequence:
+    LDR     R0, =print_format
+    MOV     R1, R3
+    BL      printf
 
-print_max:
-    ldr r0, =output_fmt
-    mov r1, r2
-    bl printf              @ imprime el máximo de la secuencia
-
-    add r7, r7, #1         @ contador++
-    b loop_cases
+    ADD     R4, R4, #1
+    B       loop
 
 end_program:
-    mov r7, #1             @ syscall exit (Linux)
-    svc 0
+    LDR     R0, =return_addr
+    LDR     LR, [R0]
+    MOV     R0, #0
+    BX      LR
+
+.end
