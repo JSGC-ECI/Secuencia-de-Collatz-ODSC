@@ -1,86 +1,120 @@
-.global main
-.global printf
+.data
+    .balign 4
+scan_format:     .asciz "%d"
+print_format:    .asciz "Max = %d\n"
+
+    .balign 4
+cases:           .word 0
+i:               .word 0
+num:             .word 0
+max_value:       .word 0
+remainder:       .word 0
+one:             .word 1
+two:             .word 2
+three:           .word 3
+
+return_addr:     .word 0
+
+.text
 .global scanf
-
-.section .data
-    prompt_cases: .asciz "Numero de casos: "
-    prompt_input: .asciz "Ingrese numero: "
-    output_fmt:   .asciz "Maximo valor: %d\n"
-    input_fmt:    .asciz "%d"
-
-.section .bss
-    num_cases: .skip 4
-    num:       .skip 4
-    max:       .skip 4
-
-.section .text
+.global printf
+.global main
+.func main
 main:
-    @ printf("Numero de casos: ");
-    ldr r0, =prompt_cases
-    bl printf
+    LDR     R0, =return_addr
+    STR     LR, [R0]
 
-    @ scanf("%d", &num_cases);
-    ldr r0, =input_fmt
-    ldr r1, =num_cases
-    bl scanf
+    // Leer número de casos
+    LDR     R0, =scan_format
+    LDR     R1, =cases
+    BL      scanf
 
-    @ r6 = num_cases
-    ldr r5, =num_cases
-    ldr r6, [r5]
-    mov r7, #0          @ r7 = contador
+    // cases = cases - 1 (ajuste MARIE)
+    LDR     R1, =cases
+    LDR     R2, [R1]
+    SUB     R2, R2, #1
+    STR     R2, [R1]
 
-loop_cases:
-    cmp r7, r6
-    beq end_program
+    // i = 0
+    MOV     R0, #0
+    LDR     R1, =i
+    STR     R0, [R1]
 
-    @ printf("Ingrese numero: ");
-    ldr r0, =prompt_input
-    bl printf
+loop:
+    // if i > cases -> fin
+    LDR     R1, =i
+    LDR     R2, [R1]
+    LDR     R3, =cases
+    LDR     R3, [R3]
+    CMP     R2, R3
+    BGT     end
 
-    @ scanf("%d", &num);
-    ldr r0, =input_fmt
-    ldr r1, =num
-    bl scanf
+    // Leer número y guardarlo en num y max_value
+    LDR     R0, =scan_format
+    LDR     R1, =num
+    BL      scanf
 
-    @ r0 = num ingresado
-    ldr r0, =num
-    ldr r0, [r0]
-
-    mov r1, r0          @ r1 = valor actual en la secuencia
-    mov r2, r0          @ r2 = max
+    LDR     R1, =num
+    LDR     R2, [R1]
+    LDR     R3, =max_value
+    STR     R2, [R3]
 
 collatz_loop:
-    cmp r1, #1
-    beq print_max
+    // if num == 1 -> fin de esta secuencia
+    LDR     R1, =num
+    LDR     R2, [R1]
+    CMP     R2, #1
+    BEQ     print_max
 
-    and r3, r1, #1      @ r3 = r1 % 2
-    cmp r3, #0
-    beq is_even
-    b is_odd
+    // num % 2 == 0?
+    ANDS    R3, R2, #1
+    BEQ     even_case
 
-is_even:
-    mov r1, r1, LSR #1  @ r1 = r1 / 2
-    b update_max
+    // Odd case: num = num * 3 + 1
+    MOV     R3, R2
+    ADD     R3, R3, R2
+    ADD     R3, R3, R2    // R3 = num * 3
+    ADD     R3, R3, #1
+    B       check_max
 
-is_odd:
-    mov r3, r1, LSL #1  @ r3 = 2*r1
-    add r1, r3, r1      @ r1 = 3*r1
-    add r1, r1, #1      @ r1 = 3*r1 + 1
+even_case:
+    // Even case: num = num / 2
+    MOV     R3, R2
+    LSR     R3, R3, #1     // Divide by 2 (logical shift right)
 
-update_max:
-    cmp r1, r2
-    ble collatz_loop
-    mov r2, r1
-    b collatz_loop
+check_max:
+    // Guardar nuevo num
+    LDR     R1, =num
+    STR     R3, [R1]
+
+    // Comparar con max_value
+    LDR     R1, =max_value
+    LDR     R4, [R1]
+    CMP     R3, R4
+    BLE     collatz_loop
+
+    // Nuevo máximo
+    STR     R3, [R1]
+    B       collatz_loop
 
 print_max:
-    ldr r0, =output_fmt
-    mov r1, r2
-    bl printf
+    // Imprimir max_value
+    LDR     R0, =print_format
+    LDR     R1, =max_value
+    LDR     R1, [R1]
+    BL      printf
 
-    add r7, r7, #1
-    b loop_cases
+    // i++
+    LDR     R1, =i
+    LDR     R2, [R1]
+    ADD     R2, R2, #1
+    STR     R2, [R1]
+    B       loop
 
-end_program:
-    mov r0, #0
-    bx lr               @ return 0
+end:
+    // Restaurar LR y salir
+    LDR     LR, =return_addr
+    LDR     LR, [LR]
+    MOV     R0, #0
+    BX      LR
+.end
