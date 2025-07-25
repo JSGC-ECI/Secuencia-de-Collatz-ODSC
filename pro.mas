@@ -99,25 +99,9 @@ div_i,	DEC	0
 div_one,	DEC	1
 div_two,	DEC	2
 / -------- Subrutina: Multiplicación (num * 3) --------
-mult,	DEC	0
-	Clear
-	Store	mult_i
-	Store	mult_m
-mult_while,	Load	mult_i
-	Subt	mult_a
-	Skipcond	000
-	Jump	mult_endwhile
-	Load	mult_m
-	Add	mult_three
-	Store	mult_m
-	Load	mult_i
-	Add	mult_one
-	Store	mult_i
-	Jump	mult_while
-mult_endwhile,	Load	mult_m
+mult,	Load	mult_a
+	Add	mult_a
+	Add	mult_a
 	JumpI	mult
-mult_a,	DEC	0
-mult_i,	DEC	0
-mult_m,	DEC	0
-mult_one,	DEC	1
-mult_three,	DEC	3
+mult_a,     DEC     0
+mult_m,     DEC     0
