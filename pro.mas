@@ -1,128 +1,114 @@
-        / ======= ENTRADA DE DATOS =======
-        Input                   / Leer número total de casos desde teclado
-        Store   cases          / Guardarlo en la variable 'cases'
-        Load    cases          / Cargar valor de 'cases'
-        Subt    one            / Restarle 1 porque el contador i inicia en 0
-        Store   cases          / Actualizar 'cases' para usarse como límite de comparación
+	Input
+	Store	cases
+	Load	cases
+	Subt	one
+	Store	cases
+/ -------- Bucle principal para procesar cada caso --------
+while,	Clear                 
+	Store	i
+	Clear
+	Store	max_value
+loop,	Load	i
+	Subt	cases
+	Skipcond	800
+	Jump	bodywhile
+	Halt
+/ -------- Leer número y preparar la secuencia de Collatz --------
+bodywhile,	Input
+	Store	num
+	//Store	max_value
+/ -------- Generar la secuencia de Collatz --------
+while2,	Load	num
+	Subt	one
+	Skipcond	400
+	Jump	bodywhile2
+	Jump	endwhile2
+/ -------- Verificar si el número es par o impar --------
+bodywhile2, Load	max_value
+	Skipcond	400		/ ¿max_value == 0?
+	Jump	sigue		/ Si no es 0, salta
+	Load	num
+	Store	max_value	/ Si es 0, inicializa max_value = num
+sigue,	Load	num
+	Store	mod_a
+	JnS	mod
+	Store	remainder
+	Skipcond	400
+	Jump	else
 
-        / ======= INICIALIZACIÓN =======
-while,  Clear                  / AC ← 0
-        Store   i              / Inicializar i = 0 (contador de casos)
-        Clear
-        Store   max_value      / Inicializar max_value = 0 (máximo por cada número)
+/ -------- Si el número es par --------
+	Load	num
+	Store	div_a
+	JnS	div
+	Store	num
+	Jump	while2
+/ -------- Si el número es impar --------
+else,	Load	num
+	Store	mult_a
+	JnS	mult
+	Add	one
+	Store	num
 
-        / ======= BUCLE PRINCIPAL: procesa cada caso =======
-loop,   Load    i              / Cargar i (caso actual)
-        Subt    cases          / Comparar i con cantidad de casos - 1
-        Skipcond 800           / Si i > cases → salir del bucle
-        Jump    bodywhile      / Si no, procesar el siguiente número
-        Halt                   / Finalizar programa cuando se procesen todos los casos
-
-        / ======= LECTURA DE NÚMERO =======
-bodywhile,  Input              / Leer un número para aplicar la secuencia de Collatz
-        Store   num            / Guardar el número actual en 'num'
-        Store   max_value      / Inicialmente, el número es el máximo conocido
-
-        / ======= BUCLE DE LA SECUENCIA DE COLLATZ =======
-while2, Load    num            / Cargar número actual
-        Subt    one            / num - 1
-        Skipcond 400           / Si num == 1 → fin de secuencia
-        Jump    bodywhile2     / Si no es 1, continuar con la secuencia
-        Jump    endwhile2      / Si es 1, terminar esta secuencia
-
-        / ======= VERIFICAR SI ES PAR O IMPAR =======
-bodywhile2, Load    num        / Cargar número
-        Store   mod_a          / Guardarlo como entrada para subrutina módulo
-        JnS     mod            / Llamar subrutina num % 2
-        Store   remainder      / Guardar resultado (0 = par, 1 = impar)
-        Skipcond 400           / Si remainder == 0 → es par
-        Jump    else           / Si es impar, saltar a 'else'
-
-        / ======= SI ES PAR: num = num / 2 =======
-        Load    num            / Cargar número
-        Store   div_a          / Guardar como entrada para subrutina de división
-        JnS     div            / Llamar subrutina num / 2
-        Store   num            / Guardar resultado (num actualizado)
-        Jump    while2         / Repetir la secuencia
-
-        / ======= SI ES IMPAR: num = num * 3 + 1 =======
-else,   Load    num            / Cargar número actual
-        Store   mult_a         / Guardar como entrada para subrutina multiplicación
-        JnS     mult           / Llamar subrutina num * 3
-        Add     one            / Sumar 1 → num * 3 + 1
-        Store   num            / Guardar nuevo número
-
-        / ======= VERIFICAR NUEVO MÁXIMO =======
-        Load    num            / Cargar número actualizado
-        Subt    max_value      / Comparar con máximo anterior
-        Skipcond 000           / Si num > max_value → actualizar
-        Jump    ell            / Salto a actualización
-        Jump    while2         / Si no es mayor, seguir secuencia
-
-ell,    Load    num            / Cargar nuevo número
-        Store   max_value      / Guardarlo como nuevo máximo
-        Jump    while2         / Continuar secuencia
-
-        / ======= FIN DE LA SECUENCIA PARA ESTE NÚMERO =======
-endwhile2,  Load    max_value  / Cargar el valor máximo alcanzado
-        Output                 / Imprimirlo en pantalla
-        Load    i              / Cargar índice actual
-        Add     one            / i = i + 1
-        Store   i              / Guardar nuevo i
-        Jump    loop           / Repetir bucle para el siguiente número
-
-cases,      DEC     0   / Número total de casos ingresados
-num,        DEC     0   / Número actual procesado
-remainder,  DEC     0   / Resultado de num % 2 (0 si par, 1 si impar)
-one,        DEC     1   / Constante 1
-i,          DEC     0   / Contador de iteraciones (casos)
-max_value,  DEC     0   / Valor máximo alcanzado en la secuencia
-mod,        DEC     0       / Dirección de retorno (en memoria)
-
-mod_while,  Load    mod_a   / Cargar valor en mod_a
-            Subt    mod_two/ Restar 2
-            Skipcond 000    / Si < 0, salir del bucle
-            Jump    mod_bodywhile
-            Jump    mod_endwhile
-
-mod_bodywhile, Store   mod_a/ Actualizar mod_a ← mod_a - 2
-                Jump    mod_while
-
-mod_endwhile,  Load    mod_a/ Resultado (residuo 0 o 1)
-               JumpI   mod  / Retornar a quien llamó
-
-mod_a,      DEC     0       / Valor a dividir entre 2
-mod_two,    DEC     2       / Constante 2
-div,        DEC     0       / Dirección de retorno
-
-            Clear
-            Store   div_i   / Inicializar cociente ← 0
-
-div_while,  Load    div_a   / Cargar dividendo actual
-            Subt    div_two/ Restar 2
-            Skipcond 000    / Si < 0, salir del bucle
-            Jump    div_bodywhile
-            Jump    div_endwhile
-
-div_bodywhile, Store  div_a / Actualizar div_a ← div_a - 2
-                Load   div_i
-                Add    div_one
-                Store  div_i  / div_i++
-                Jump   div_while
-
-div_endwhile,  Load   div_i / Cargar cociente
-               JumpI  div   / Retornar
-
-div_a,      DEC     0       / Dividendo original
-div_i,      DEC     0       / Cociente (resultado)
-div_one,    DEC     1       / Constante 1
-div_two,    DEC     2       / Constante 2
-mult,       DEC     0       / Dirección de retorno
-
-            Load    mult_a  / Cargar número
-            Add     mult_a  / num * 2
-            Add     mult_a  / num * 3
-            JumpI   mult    / Retornar resultado
-
-mult_a,     DEC     0       / Número a multiplicar
+	Load	num
+	Subt	max_value
+	Skipcond	000
+	Jump	ell
+	Jump	while2
+ell,	Load	num
+	Store	max_value
+	Jump	while2
+/ -------- Fin de secuencia Collatz para un número --------
+endwhile2,	Load	max_value
+	Output
+	Load	i
+	Add	one
+	Store	i
+	Jump	loop 
+/ -------- Variables --------
+cases,	DEC	0
+num,	DEC	0
+remainder,  DEC	0
+one,	DEC	1
+i,	DEC	0
+max_value,	DEC	0
+/ -------- Subrutina: Módulo (num % 2) --------
+mod,	DEC	0
+mod_while,	Load	mod_a
+	Subt	mod_two
+	Skipcond	000
+	Jump	mod_bodywhile
+	Jump	mod_endwhile
+mod_bodywhile,	Store	mod_a
+	Jump	mod_while
+mod_endwhile,	Load	mod_a
+	JumpI	mod
+mod_a,	DEC	0
+mod_two,	DEC	2
+/ -------- Subrutina: División (num / 2) --------
+div,	DEC	0
+	Clear
+	Store	div_i
+div_while,	Load	div_a
+	Subt	div_two
+	Skipcond	000
+	Jump	div_bodywhile
+	Jump	div_endwhile
+div_bodywhile,	Store	div_a
+	Load	div_i
+	Add	div_one
+	Store	div_i
+	Jump	div_while
+div_endwhile,	Load	div_i
+	JumpI	div
+div_a,	DEC	0
+div_i,	DEC	0
+div_one,	DEC	1
+div_two,	DEC	2
+/ -------- Subrutina: Multiplicación (num * 3) --------
+mult,	DEC	0
+	Load	mult_a
+	Add	mult_a
+	Add	mult_a
+	JumpI	mult
+mult_a,	DEC	0
 
