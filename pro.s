@@ -1,76 +1,121 @@
 .data
-scan_format:    .asciz "%d"
-print_format:   .asciz " %d\n"
-cases:          .word 0
-num:            .word 0
-max_value:      .word 0
-i:              .word 0
-return_addr:    .word 0
+    .balign 4
+scan_format:     .asciz "%d"
+print_format:    .asciz "%d\n"
+
+    .balign 4
+cases:           .word 0
+i:               .word 0
+num:             .word 0
+max_value:       .word 0
+remainder:       .word 0
+one:             .word 1
+two:             .word 2
+three:           .word 3
+
+return_addr:     .word 0
+
 
 .text
+.global scanf
+.global printf
 .global main
 .func main
 main:
-    LDR     R0, =return_addr
-    STR     LR, [R0]
+    LDR     R0, =return_addr
+    STR     LR, [R0]
 
-    LDR     R0, =scan_format
-    LDR     R1, =cases
-    BL      scanf
+    // Leer número de casos
+    LDR     R0, =scan_format
+    LDR     R1, =cases
+    BL      scanf
 
-    MOV     R4, #0
+    // cases = cases - 1 (ajuste MARIE)
+    LDR     R1, =cases
+    LDR     R2, [R1]
+    SUB     R2, R2, #1
+    STR     R2, [R1]
+
+    // i = 0
+    MOV     R0, #0
+    LDR     R1, =i
+    STR     R0, [R1]
 
 loop:
-    LDR     R1, =i
-    STR     R4, [R1]
+    // if i > cases -> fin
+    LDR     R1, =i
+    LDR     R2, [R1]
+    LDR     R3, =cases
+    LDR     R3, [R3]
+    CMP     R2, R3
+    BGT     end
 
-    LDR     R1, =cases
-    LDR     R1, [R1]
-    CMP     R4, R1
-    BGE     end_program
+    // Leer número y guardarlo en num y max_value
+    LDR     R0, =scan_format
+    LDR     R1, =num
+    BL      scanf
 
-    LDR     R0, =scan_format
-    LDR     R1, =num
-    BL      scanf
-
-    LDR     R1, =num
-    LDR     R2, [R1]
-    MOV     R3, R2
+    LDR     R1, =num
+    LDR     R2, [R1]
+    LDR     R3, =max_value
+    STR     R2, [R3]
 
 collatz_loop:
-    CMP     R2, #1
-    BLE     done_sequence
+    // if num == 1 -> fin de esta secuencia
+    LDR     R1, =num
+    LDR     R2, [R1]
+    CMP     R2, #1
+    BEQ     print_max
 
-    AND     R5, R2, #1
-    CMP     R5, #0
-    BEQ     is_even
+    // num % 2 == 0?
+    ANDS    R3, R2, #1
+    BEQ     even_case
 
-    ADD     R6, R2, R2
-    ADD     R6, R6, R2
-    ADD     R2, R6, #1
-    B       check_max
+    // Odd case: num = num * 3 + 1
+    MOV     R3, R2
+    ADD     R3, R3, R2
+    ADD     R3, R3, R2    // R3 = num * 3
+    ADD     R3, R3, #1
+    B       check_max
 
-is_even:
-    MOV     R2, R2, LSR #1
+even_case:
+    // Even case: num = num / 2
+    MOV     R3, R2
+    LSR     R3, R3, #1     // Divide by 2 (logical shift right)
 
 check_max:
-    CMP     R2, R3
-    BLE     collatz_loop
-    MOV     R3, R2
-    B       collatz_loop
+    // Guardar nuevo num
+    LDR     R1, =num
+    STR     R3, [R1]
 
-done_sequence:
-    LDR     R0, =print_format
-    MOV     R1, R3
-    BL      printf
+    // Comparar con max_value
+    LDR     R1, =max_value
+    LDR     R4, [R1]
+    CMP     R3, R4
+    BLE     collatz_loop
 
-    ADD     R4, R4, #1
-    B       loop
+    // Nuevo máximo
+    STR     R3, [R1]
+    B       collatz_loop
 
-end_program:
-    LDR     R0, =return_addr
-    LDR     LR, [R0]
-    MOV     R0, #0
-    BX      LR
+print_max:
+    // Imprimir max_value
+    LDR     R0, =print_format
+    LDR     R1, =max_value
+    LDR     R1, [R1]
+    BL      printf
 
+    // i++
+    LDR     R1, =i
+    LDR     R2, [R1]
+    ADD     R2, R2, #1
+    STR     R2, [R1]
+    B       loop
+
+end:
+    // Restaurar LR y salir
+    LDR     LR, =return_addr
+    LDR     LR, [LR]
+    MOV     R0, #0
+    BX      LR
 .end
