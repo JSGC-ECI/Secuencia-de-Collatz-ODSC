@@ -1,6 +1,6 @@
 .data
 scan_format:    .asciz "%d"
-print_format:   .asciz "Max = %d\n"
+print_format:   .asciz "%d\n"
 cases:          .word 0
 num:            .word 0
 max_value:      .word 0
@@ -37,7 +37,11 @@ loop:
     LDR     R2, [R1]
     MOV     R3, R2
 
-collatz_loop:
+step_loop:
+    LDR     R0, =print_format
+    MOV     R1, R3
+    BL      printf
+
     CMP     R2, #1
     BLE     done_sequence
 
@@ -55,15 +59,11 @@ is_even:
 
 check_max:
     CMP     R2, R3
-    BLE     collatz_loop
+    BLE     step_loop
     MOV     R3, R2
-    B       collatz_loop
+    B       step_loop
 
 done_sequence:
-    LDR     R0, =print_format
-    MOV     R1, R3
-    BL      printf
-
     ADD     R4, R4, #1
     B       loop
 
@@ -74,3 +74,4 @@ end_program:
     BX      LR
 
 .end
+
