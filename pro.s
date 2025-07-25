@@ -1,77 +1,133 @@
-.data
-scan_format:    .asciz "%d"
-print_format:   .asciz "%d\n"
-cases:          .word 0
-num:            .word 0
-max_value:      .word 0
-i:              .word 0
-return_addr:    .word 0
+#include <stdio.h>
+#include <string.h>
 
-.text
-.global main
-.func main
-main:
-    LDR     R0, =return_addr
-    STR     LR, [R0]
+#define MAX 1005
 
-    LDR     R0, =scan_format
-    LDR     R1, =cases
-    BL      scanf
+void quitarCeros(char num[]) {
+    int i = 0;
+    while (num[i] == '0' && num[i + 1] != '\0') {
+        i++;
+    }
+    if (i > 0) {
+        int j = 0;
+        while (num[i]) {
+            num[j++] = num[i++];
+        }
+        num[j] = '\0';
+    }
+}
 
-    MOV     R4, #0
+int comparar(char a[], char b[]) {
 
-loop:
-    LDR     R1, =i
-    STR     R4, [R1]
+    int la = strlen(a);
+    int lb = strlen(b);
+    if (la > lb) return 1;
+    if (la < lb) return -1;
 
-    LDR     R1, =cases
-    LDR     R1, [R1]
-    CMP     R4, R1
-    BGE     end_program
+    for (int i = 0; i < la; i++) {
+        if (a[i] > b[i]) return 1;
+        if (a[i] < b[i]) return -1;
+    }
 
-    LDR     R0, =scan_format
-    LDR     R1, =num
-    BL      scanf
+    return 0;
+}
 
-    LDR     R1, =num
-    LDR     R2, [R1]
-    MOV     R3, R2
+void complementoA9(char b[], char res[]) {
+    int len = strlen(b);
+    for (int i = 0; i < len; i++) {
+        res[i] = '9' - b[i] + '0';
+    }
+    res[len] = '\0';
+}
 
-step_loop:
-    LDR     R0, =print_format
-    MOV     R1, R3
-    BL      printf
+void sumaConAcarreo(char a[], char b[], char res[]) {
+    int la = strlen(a);
+    int lb = strlen(b);
+    int max = (la > lb) ? la : lb;
+    char temp[MAX];
+    int acarreo = 1;
+    int i = la - 1, j = lb - 1, k = 0;
 
-    CMP     R2, #1
-    BLE     done_sequence
+    while (max--) {
+        int da = (i >= 0) ? a[i] - '0' : 0;
+        int db = (j >= 0) ? b[j] - '0' : 0;
+        int suma = da + db + acarreo;
 
-    AND     R5, R2, #1
-    CMP     R5, #0
-    BEQ     is_even
+        acarreo = suma / 10;
+        temp[k++] = (suma % 10) + '0';
+        i--; j--;
+    }
 
-    ADD     R6, R2, R2
-    ADD     R6, R6, R2
-    ADD     R2, R6, #1
-    B       check_max
+    if (acarreo == 1)
+        temp[k++] = '1';
 
-is_even:
-    MOV     R2, R2, LSR #1
 
-check_max:
-    CMP     R2, R3
-    BLE     step_loop
-    MOV     R3, R2
-    B       step_loop
+    for (int m = 0; m < k; m++) {
+        res[m] = temp[k - 1 - m];
+    }
+    res[k] = '\0';
+}
 
-done_sequence:
-    ADD     R4, R4, #1
-    B       loop
 
-end_program:
-    LDR     R0, =return_addr
-    LDR     LR, [R0]
-    MOV     R0, #0
-    BX      LR
+void restarComplemento9(char a[], char b[], char res[]) {
+    char b9[MAX], suma[MAX];
+    int lenA = strlen(a), lenB = strlen(b);
 
-.end
+    char bPadded[MAX];
+    int dif = lenA - lenB;
+    for (int i = 0; i < dif; i++) bPadded[i] = '0';
+    for (int i = 0; i < lenB; i++) bPadded[dif + i] = b[i];
+    bPadded[lenA] = '\0';
 
+    complementoA9(bPadded, b9);
+    sumaConAcarreo(a, b9, suma);
+
+    strcpy(res, suma + 1);
+}
+
+void dividir(char a[], char b[], char cociente[], char residuo[]) {
+    char actual[MAX], temp[MAX], uno[] = "1";
+    int len = strlen(a);
+    int ci = 0;
+
+    char parte[MAX] = "";
+
+    for (int i = 0; i < len; i++) {
+        int l = strlen(parte);
+        parte[l] = a[i];
+        parte[l + 1] = '\0';
+        quitarCeros(parte);
+
+        int cuenta = 0;
+        while (comparar(parte, b) >= 0) {
+            restarComplemento9(parte, b, temp);
+            strcpy(parte, temp);
+            cuenta++;
+        }
+
+        cociente[ci++] = cuenta + '0';
+    }
+
+    cociente[ci] = '\0';
+    quitarCeros(cociente);
+
+    if (strlen(parte) == 0)
+        strcpy(residuo, "0");
+    else
+        strcpy(residuo, parte);
+}
+
+void main() {
+    int T;
+    char a[MAX], b[MAX], coc[MAX], res[MAX];
+    scanf("%d", &T);
+    for (int i = 0; i < T; i++) {
+        scanf("%s", a);
+        scanf("%s", b);
+
+        dividir(a, b, coc, res);
+
+        printf("%s\n", coc);
+        printf("%s\n", res);
+    }
+}
