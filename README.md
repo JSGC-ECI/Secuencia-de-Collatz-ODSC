@@ -1,12 +1,13 @@
 # 📌 Secuencia de Collatz
 
-> ⚠️ Estado: **Finalizado**
+> ⚠️ Estado: ***EN DESARROLLO*** Versión académica
 
-Este proyecto implementa la generación de la secuencia de Collatz desde 1 hasta *n*, e imprime el **valor máximo** alcanzado por todas las secuencias generadas. Se ha desarrollado en dos versiones: una usando el lenguaje ensamblador **MARIE** y otra usando **ensamblador ARM** sobre Raspberry Pi.
+Se implementa la secuencia de Collatz, una operación repetitiva sobre un número entero positivo donde, si el número es par, se divide entre dos, y si es impar, se triplica y se le suma uno. A partir de cualquier valor inicial, se genera una secuencia aplicando estas reglas sucesivamente, con la hipótesis de que siempre se alcanzará el valor 1, sin importar el número con el que se comienza.
 
 ---
 
 ## 👥 Autores
+GERARDO OSPINA HERNANDEZ
 
 - [JUAN SEBASTIÁN GUAYAZÁN CLAVIJO](https://github.com/JSGC-ECI) → [juan.guayazan-c@mail.escuelaing.edu.co](mailto:juan.guayazan-c@mail.escuelaing.edu.co)
 
@@ -87,10 +88,33 @@ n1
 n2
 ...
 ```
-
+> [!NOTE]\
 > Por cada línea, se genera la secuencia de Collatz desde 1 hasta *n* y se imprime el **mayor valor** encontrado.
 
-#### Ejemplo:
+> [!WARNING]\
+> Ingreso de solo numeros para su funcionamiento
+
+### Para MARIE:
+
+1. Abre el simulador.
+2. Carga `pro.mas`.
+3. Ejecuta paso a paso o en ejecución completa.
+4. Verifica la salida en el simulador.
+
+### Para ARM:
+
+```bash
+as -o pro.o pro.s
+ld -o pro pro.o
+./pro
+```
+
+
+---
+
+## 🧪 Pruebas
+
+### Ejemplo:
 
 **Entrada**
 
@@ -109,29 +133,10 @@ n2
 
 ---
 
-## 🧪 Pruebas
-
-### Para MARIE:
-
-1. Abre el simulador.
-2. Carga `pro.mas`.
-3. Ejecuta paso a paso o en ejecución completa.
-4. Verifica la salida en el simulador.
-
-### Para ARM:
-
-```bash
-as -o pro.o pro.s
-ld -o pro pro.o
-./pro
-```
-
----
-
 ## 📁 Estructura del Proyecto
 
 ```bash
-📦 collatz-mar-arm
+📦 Secuencia-de-Collatz-ODSC
  ┣ 📜 pro.mas           # Versión MARIE
  ┗ 📜 pro.s             # Versión ARM Assembly
 ```
@@ -151,6 +156,3 @@ ld -o pro pro.o
 
 Este proyecto está licenciado bajo propósitos académicos y educativos. Puedes consultar el archivo [LICENSE](./LICENSE) para más información.
 
----
-
-¿Deseas que también te prepare el `LICENSE`, `.gitignore` o el `pro.mas` / `pro.s` si aún no los tienes completos?
