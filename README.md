@@ -149,10 +149,3 @@ ld -o pro pro.o
 * [ ] Añadir visualización gráfica de la secuencia.
 * [ ] Mejorar formato de entrada/salida en terminal.
 
-
----
-
-## 📄 Licencia
-
-Este proyecto está licenciado bajo propósitos académicos y educativos. Puedes consultar el archivo [LICENSE](./LICENSE) para más información.
-
