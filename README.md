@@ -92,7 +92,7 @@ n2
 > Por cada línea, se genera la secuencia de Collatz desde 1 hasta *n* y se imprime el **mayor valor** encontrado.
 
 > [!WARNING]\
-> Ingreso de solo numeros para su funcionamiento
+> Ingreso de solo numeros (sistema decimal) para su funcionamiento
 
 ### Para MARIE:
 
